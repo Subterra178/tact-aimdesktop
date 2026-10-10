@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TACT-AIM Player</title>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">TACT-AIM DESKTOP</div>
+    <h1>TACT-AIM Player</h1>
+    <p class="subtitle">プレイヤー名を設定して、ゲームを開始します。</p>
+    <form id="launchForm">
+      <label for="username">ユーザー名</label>
+      <input id="username" name="username" maxlength="32" autocomplete="nickname" placeholder="名前を入力" autofocus>
+      <button type="submit">ゲーム開始　→</button>
+      <div id="error" class="error" role="status" aria-live="polite"></div>
+    </form>
+  </main>
+  <script>
+    const input = document.getElementById('username');
+    const error = document.getElementById('error');
+    try { input.value = localStorage.getItem('tactAimPlayerName') || ''; } catch (_) {}
+
+    document.getElementById('launchForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = input.value.trim();
+      if (!name) {
+        error.textContent = 'ユーザー名を入力してください。';
+        input.focus();
+        return;
+      }
+      error.textContent = '';
+      try { localStorage.setItem('tactAimPlayerName', name); } catch (_) {}
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage('start|' + encodeURIComponent(name));
+      } else {
+        error.textContent = 'このメニューは TACT-AIM Desktop 内で起動してください。';
+      }
+    });
+  </script>
+</body>
+</html>
